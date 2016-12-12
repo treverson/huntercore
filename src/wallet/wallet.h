@@ -210,17 +210,7 @@ public:
         Init(NULL);
     }
 
-    CWalletTx(const CWallet* pwalletIn)
-    {
-        Init(pwalletIn);
-    }
-
-    CWalletTx(const CWallet* pwalletIn, const CMerkleTx& txIn) : CMerkleTx(txIn)
-    {
-        Init(pwalletIn);
-    }
-
-    CWalletTx(const CWallet* pwalletIn, const CTransaction& txIn) : CMerkleTx(txIn)
+    CWalletTx(const CWallet* pwalletIn, CTransactionRef arg) : CMerkleTx(std::move(arg))
     {
         Init(pwalletIn);
     }
@@ -714,6 +704,14 @@ public:
      * calling CreateTransaction();
      */
     bool FundTransaction(CMutableTransaction& tx, CAmount& nFeeRet, bool overrideEstimatedFeeRate, const CFeeRate& specificFeeRate, int& nChangePosInOut, std::string& strFailReason, bool includeWatching, bool lockUnspents, const CTxDestination& destChange = CNoDestination());
+
+    /**
+     * Find the amount in the given tx input.  This must only be called with
+     * Namecoin inputs as used for CreateTransaction.
+     */
+    bool FindValueInNameInput (const CTxIn& nameInput,
+                               CAmount& value, const CWalletTx*& walletTx,
+                               std::string& strFailReason) const;
 
     /**
      * Create a new transaction paying the recipients with a set of coins
